@@ -3,7 +3,9 @@ namespace Anthony\App;
 /*
 Author: Anthony Rodriguez
 
-This function returns an array with the request value sent by the user.
+--THIS IS AN IMPROVEMENT VERSION OF ProcessUrlRequest--
+
+This class returns an array of values which represent the request sent by the user using the GET METHOD.
 The main purpose is to separate or strip the protocol, domain and site path from the URL request sent by the user.
 
 i.e : Http://localhost/site/subpath/controller/parameter1/parameter2
@@ -25,36 +27,26 @@ RewriteEngine On
 RewriteCond %{SCRIPT_NAME} !-d
 RewriteCond %{SCRIPT_NAME} !-f
 
-RewriteRule ^.*$ ./index.php  
+RewriteRule ^(.+)$ ./index.php?get=$1 [QSA,L]  
 
 where ./index.php is our main file for request handling  
 
 */
 class ProcessUrlRequest {
 	
-	private $rootDirectoryElements;
 	private $errors = [];
-	const ROOT_DIR = __DIR__;
-	
-	public function __construct(){
-		$this->rootDirectoryElements = $this->splitString('/',self::ROOT_DIR);
-	}
+	private $parts = [];
 
+	public function __construct($uri){
+		$this->parts =  $this->processUriRequest($uri);
+	}
+	
 	/*
 	*	@param String $uri
 	* 	@return array 
 	*/
-	public function getRequest($uri){
-		$request = $this->splitString('/', $uri);
-		return $this->processUriRequest($this->rootDirectoryElements, $request);
-	}
-	/*
-	* @param $character
-	* @param $mString
-	* @return array 
-	*/
-	private function splitString($character,$mString){
-		return  explode($character,$mString); // Repeated
+	public function getRequest(){
+		return $this->parts;	
 	}
 	/*
 	* 	@return array 
@@ -64,22 +56,23 @@ class ProcessUrlRequest {
 		return $this->errors;
 	}
 
+	public function splitString($mString){
+		return explode('/', $mString);
+	}
+
+	public function sanitizeUrl($url){
+		 $sanitizedUrl = filter_var(rtrim($url, '/'), FILTER_SANITIZE_URL);
+		 return $sanitizedUrl;
+	}
+
 	/*  ProcessUriRequest returns the intended request from the URL recursively.
-	*	@param String $dir
 	*	@param String $req	
 	* 	@return array 
 	*/
-	private function processUriRequest($dir,$req){
-		if(!count($dir)){
-			return $req;
-		}
-		if($dir[0] == $req[0]){
-			array_shift($req);
-		}
-		array_shift($dir);
-		$request = $this->processUriRequest($dir,$req);
-
-		return $request;
+	private function processUriRequest($req){
+		$urlString = $this->sanitizeUrl($req);
+		$urlParts = $this->splitString($urlString);
+		return $urlParts;
 	}
 }
 
