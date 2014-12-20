@@ -28,7 +28,7 @@ RewriteEngine On
 RewriteCond %{SCRIPT_NAME} !-d
 RewriteCond %{SCRIPT_NAME} !-f
 
-RewriteRule ^.*$ ./index.php  
+RewriteRule ^(.+)$ ./index.php?get=$1 [QAS,L]  
 
 where ./index.php is our main file for request handling  
 ```
