@@ -5,6 +5,7 @@ php-urlRequestGetter
 
 
 ###Author: Anthony Rodriguez
+####Collaborator: Leonardo Nouel
 
 This function returns an array with the request value sent by the user.
 The main purpose is to separate or strip the protocol, domain and site path from the URL request sent by the user.
